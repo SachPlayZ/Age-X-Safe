@@ -13,7 +13,7 @@ export default {
   theme: {
   	extend: {
   		animation: {
-  			"gradient-x": "gradient-x 15s ease infinite",
+  			"gradient-x": "gradient-x 4s ease infinite",
   		},
   		keyframes: {
   			"gradient-x": {

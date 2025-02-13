@@ -1318,3 +1318,4 @@ const abi = [
   ]
   
   export default abi;
+  export const contractAddress = "0xEB4A7791a92bEaDe73F45CF07261ff8FBB39C6b7"
