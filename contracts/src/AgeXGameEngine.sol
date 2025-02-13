@@ -78,6 +78,11 @@ contract GamingNFTMarketplace is ERC721, ReentrancyGuard, Ownable {
     mapping(uint256 => mapping(uint256 => Move)) public monsterMoves;
     mapping(uint256 => Item) public items;
     mapping(uint256 => MarketItem) public marketItems;
+    mapping(address => uint8) public playerFaction;
+
+    // Add faction constants
+    uint8 public constant FACTION_ONE = 1;
+    uint8 public constant FACTION_TWO = 2;
 
     // --- Events ---
     event MonsterMinted(
@@ -103,6 +108,7 @@ contract GamingNFTMarketplace is ERC721, ReentrancyGuard, Ownable {
         address buyer,
         uint256 price
     );
+    event FactionSet(address indexed player, uint8 factionId);
 
     // --- Custom Errors ---
     error InvalidPrice();
@@ -119,6 +125,7 @@ contract GamingNFTMarketplace is ERC721, ReentrancyGuard, Ownable {
     error MarketplaceNotApproved();
     error TokenAlreadyListed();
     error NoTokensOwned();
+    error InvalidFactionId();
 
     // --- Constructor ---
     constructor() ERC721("GameNFT", "GNFT") Ownable(msg.sender) {}
@@ -390,5 +397,41 @@ contract GamingNFTMarketplace is ERC721, ReentrancyGuard, Ownable {
         uint256 tokenId
     ) external view returns (MarketItem memory) {
         return marketItems[tokenId];
+    }
+
+    /**
+     * @dev Sets or updates a player's faction
+     * @param factionId The ID of the faction (1 or 2)
+     */
+    function setPlayerFaction(uint8 factionId) external {
+        if (factionId != FACTION_ONE && factionId != FACTION_TWO)
+            revert InvalidFactionId();
+        playerFaction[msg.sender] = factionId;
+        emit FactionSet(msg.sender, factionId);
+    }
+
+    /**
+     * @dev Admin function to set faction for a specific player
+     * @param player The address of the player
+     * @param factionId The ID of the faction (1 or 2)
+     */
+    function setPlayerFactionByAdmin(
+        address player,
+        uint8 factionId
+    ) external onlyOwner {
+        if (factionId != FACTION_ONE && factionId != FACTION_TWO)
+            revert InvalidFactionId();
+        if (player == address(0)) revert InvalidAddress();
+        playerFaction[player] = factionId;
+        emit FactionSet(player, factionId);
+    }
+
+    /**
+     * @dev Gets a player's faction
+     * @param player The address of the player
+     * @return The faction ID of the player (0 if not set)
+     */
+    function getPlayerFaction(address player) external view returns (uint8) {
+        return playerFaction[player];
     }
 }
